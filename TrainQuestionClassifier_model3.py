@@ -9,6 +9,9 @@
 # ##############################################################################################
 
 import nltk
+from nltk.tokenize.treebank import TreebankWordDetokenizer
+from nltk import word_tokenize, pos_tag
+from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.classify.scikitlearn import SklearnClassifier
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import BernoulliNB, MultinomialNB
@@ -23,6 +26,28 @@ import json
 
 
 print('----- !!!!! Running the train_question_classifier_in_three_word !!!!! -----')
+
+
+def text_cleansing(txt):
+    try:
+        # tokenize the text
+        output_txt = []
+
+        # lemmatize the text
+        lem = WordNetLemmatizer()
+        for word, tag in pos_tag(word_tokenize(txt.lower())):
+            wntag = tag[0].lower()
+            wntag = wntag if wntag in ['a', 'r', 'n', 'v'] else None
+            if not wntag:
+                output_txt.append(word)
+            else:
+                output_txt.append(lem.lemmatize(word, wntag))
+
+        return TreebankWordDetokenizer().detokenize(output_txt)
+
+    except Exception as e:
+        print(e)
+        return txt
 
 
 def get_n_keywords(input_data, n):
@@ -40,7 +65,8 @@ def text_to_features(txt):
     convert original text into feature set which is used for training
     """
     try:
-        vec = CountVectorizer(analyzer='word', ngram_range=(2, 2)).fit([txt.lower()])
+        txt = text_cleansing(txt)
+        vec = CountVectorizer(analyzer='word', ngram_range=(3, 3)).fit([txt])
         words_in_text = vec.get_feature_names()
         feature = {}
 
