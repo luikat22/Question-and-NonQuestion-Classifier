@@ -1,1 +1,2 @@
-
+An empty folder which supposes to contain the training data.
+If you want to review the training data or retrain the model, you can download the data at: http://www.msmarco.org/dataset.aspx and then unzip and put them in this folder.
